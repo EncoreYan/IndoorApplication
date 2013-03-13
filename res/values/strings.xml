@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="app_name">IndoorApplication</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="hello_map">Hello map!</string>
+    <string name="hello_wifi">Hello Wi-Fi!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_display_map">DisplayMap</string>
+    <string name="title_activity_display_wifi">DisplayWifi</string>
+
+</resources>
