@@ -20,7 +20,7 @@
         android:layout_below="@+id/textView1"
         android:layout_marginTop="46dp"
         android:onClick="openMapTab"
-        android:text="Map" />
+        android:text="@string/button_map" />
 
     <Button
         android:id="@+id/button_wifi"
@@ -30,6 +30,6 @@
         android:layout_alignRight="@+id/textView1"
         android:layout_marginBottom="74dp"
         android:onClick="openWifiTab"
-        android:text="Wifi" />
+        android:text="@string/button_wifi" />
 
 </RelativeLayout>
