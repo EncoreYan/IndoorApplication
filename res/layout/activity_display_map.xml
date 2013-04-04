@@ -10,5 +10,11 @@
         android:layout_centerVertical="true"
         android:text="@string/hello_map"
         tools:context=".DisplayMap" />
-
+	
+    <ImageView
+        android:id="@+id/mapView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/korrus3"/>
+         
 </RelativeLayout>
