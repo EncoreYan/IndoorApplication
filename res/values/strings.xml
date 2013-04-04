@@ -14,5 +14,7 @@
     <string name="button_map">Map</string>
     <string name="button_wifi">Wifi</string>
     <string name="loading">Loading…</string>
+    <string name="map">Map</string>
+    <string name="reset">Reset</string>
 
 </resources>

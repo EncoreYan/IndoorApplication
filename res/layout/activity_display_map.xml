@@ -4,17 +4,37 @@
     android:layout_height="match_parent" >
 
     <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="@string/hello_map"
         tools:context=".DisplayMap" />
-	
+
     <ImageView
         android:id="@+id/mapView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/korrus3"/>
-         
+        android:background="@drawable/korrus3"
+        android:contentDescription="@string/map"/>
+
+    <Button
+        android:id="@+id/wifi_locate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:onClick="locate"
+        android:text="@string/button_locate" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/wifi_locate_button"
+        android:onClick="reset"
+        android:text="@string/reset" />
+
 </RelativeLayout>

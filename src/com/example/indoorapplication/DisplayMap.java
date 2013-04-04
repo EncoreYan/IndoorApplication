@@ -1,29 +1,33 @@
 package com.example.indoorapplication;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
 
-import android.os.Bundle;
+import com.example.indoorapplication.data.Point;
+import com.example.indoorapplication.data.Room;
+import com.example.indoorapplication.display.Mapzor;
+import com.example.indoorapplication.display.MapPoint;
+import com.example.indoorapplication.wifi.WifiScan;
+import com.example.indoorapplication.wifi.WifiScanListener;
+
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.net.wifi.ScanResult;
+import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
-import android.support.v4.app.NavUtils;
 
 public class DisplayMap extends Activity {
 
-    Canvas c;
-    Paint p;
     ImageView v;
-    Bitmap bm;
-	ArrayList<Point> points = new ArrayList<Point>();
-	
-	
+    Mapzor map;
+    
+    private WifiScan wifi;
+	private Room room;
+	private Point activePoint = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,39 +37,81 @@ public class DisplayMap extends Activity {
         
         setContentView(R.layout.activity_display_map);
         //getActionBar().setDisplayHomeAsUpEnabled(true);
+        wifi = new WifiScan(this);
+        room = IndoorPositioning.room;
+        
+        v = (ImageView)findViewById(R.id.mapView);
+        map = new Mapzor(v, room);
 
     }
-    
 
     public boolean onTouchEvent(MotionEvent event){
-
-        v = (ImageView)findViewById(R.id.mapView);
-	    bm = Bitmap.createBitmap(v.getWidth(),v.getHeight(),Config.ARGB_8888);
-	    c = new Canvas(bm);
-	    p = new Paint();        
-	    p.setColor(Color.BLUE);
-	    
-	    int[] coords = new int[2];
-	    v.getLocationOnScreen(coords);
-	    
-	    float x = event.getRawX()-coords[0]; 
-	    float y = event.getRawY()-coords[1];
-	    Point currentPoint = new Point(x, y, "BLUE");
-	    points.add(currentPoint);
-	    
-	    for(int i = 0; i < points.size(); i++){
-	    	if(points.get(i).getColor().equals("BLUE")){
-	    		p.setColor(Color.BLUE);
-	    	} else
-	    		p.setColor(Color.RED);
-	    	
-	    	c.drawCircle(points.get(i).getX(), points.get(i).getY(), 10, p);  
-	    }
-	       
-	
-	    v.setImageBitmap(bm);
-	
+    	MapPoint point = map.createMapPoint(event);
+    	
+    	
+    	
+    	if (point != null) {
+    		System.out.println("Found map point" + point.getX() + "; " + point.getY());
+    		
+    		wifi.getWifiData(new TrainListener(point));
+    	}
+    	
 	    return true;
+    }
+    
+    public void locate(View view) {
+    	wifi.getWifiData(new LocateListener());
+    }
+    
+    public void reset(View view) {
+    	room.reset();
+    	
+    	map.reDraw();
+    }
+    
+    class TrainListener implements WifiScanListener {
+    	private MapPoint point;
+    	
+    	public TrainListener(MapPoint point) {
+    		this.point = point;
+    	}
+    	
+		public void onWifiScanResult(List<ScanResult> scanResults) {
+			System.out.println("Scan results");
+			room.createPoint(scanResults, this.point);
+			
+			map.reDraw();
+		}
+    }
+    
+    class LocateListener implements WifiScanListener {
+		public void onWifiScanResult(List<ScanResult> scanResults) {
+			if (activePoint != null) {
+				activePoint.setActive(false);
+			}
+			
+			SortedMap<Double, Point> points = room.orderByResults(scanResults);
+			
+			if (points.size() > 0) {
+				activePoint = points.get(points.firstKey());
+				activePoint.setActive(true);
+			}
+			
+			map.reDraw();
+			
+	    }
+    }
+    
+    @Override
+	protected void onPause() {
+    	wifi.unregisterReceiver();
+        super.onPause();
+    }
+
+	@Override
+    protected void onResume() {
+		wifi.registerReceiver();
+        super.onResume();
     }
 
     @Override

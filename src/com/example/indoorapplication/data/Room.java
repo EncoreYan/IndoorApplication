@@ -7,6 +7,8 @@ import java.util.TreeMap;
 
 import android.net.wifi.ScanResult;
 
+import com.example.indoorapplication.display.MapPoint;
+
 public class Room {
 	private List<Point> points;
 	
@@ -15,7 +17,11 @@ public class Room {
 	}
 	
 	public Point createPoint(List<ScanResult> scanResults) {
-		Point point = new Point(scanResults);
+		return createPoint(scanResults, null);
+	}
+	
+	public Point createPoint(List<ScanResult> scanResults, MapPoint mapPoint) {
+		Point point = new Point(scanResults, mapPoint);
 		
 		points.add(point);
 		
@@ -43,6 +49,10 @@ public class Room {
 		return data;
 	}
 	
+	public void reset() {
+		points.clear();
+	}
+	
 	public SortedMap<Double, Point> orderByResults(List<ScanResult> scanResults) {
 		SortedMap<Double, Point> sortedPoints = new TreeMap<Double, Point>();
 		
@@ -52,5 +62,9 @@ public class Room {
 		}
 		
 		return sortedPoints;
+	}
+	
+	public List<Point> getPoints() {
+		return points;
 	}
 }
