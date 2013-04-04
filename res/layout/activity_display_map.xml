@@ -16,11 +16,11 @@
         android:id="@+id/mapView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/korrus3"
+        android:background="@drawable/korrus5"
         android:contentDescription="@string/map"/>
 
     <Button
-        android:id="@+id/wifi_locate_button"
+        android:id="@+id/locate_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -29,11 +29,11 @@
         android:text="@string/button_locate" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/button_reset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/wifi_locate_button"
+        android:layout_below="@+id/locate_button"
         android:onClick="reset"
         android:text="@string/reset" />
 

@@ -3,13 +3,6 @@ package com.example.indoorapplication;
 import java.util.List;
 import java.util.SortedMap;
 
-import com.example.indoorapplication.data.Point;
-import com.example.indoorapplication.data.Room;
-import com.example.indoorapplication.display.Mapzor;
-import com.example.indoorapplication.display.MapPoint;
-import com.example.indoorapplication.wifi.WifiScan;
-import com.example.indoorapplication.wifi.WifiScanListener;
-
 import android.app.Activity;
 import android.net.wifi.ScanResult;
 import android.os.Bundle;
@@ -18,7 +11,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+
+import com.example.indoorapplication.data.Point;
+import com.example.indoorapplication.data.Room;
+import com.example.indoorapplication.display.MapPoint;
+import com.example.indoorapplication.display.Mapzor;
+import com.example.indoorapplication.wifi.WifiScan;
+import com.example.indoorapplication.wifi.WifiScanListener;
 
 public class DisplayMap extends Activity {
 
@@ -28,6 +29,7 @@ public class DisplayMap extends Activity {
     private WifiScan wifi;
 	private Room room;
 	private Point activePoint = null;
+	private Button locateButton;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,9 @@ public class DisplayMap extends Activity {
         
         setContentView(R.layout.activity_display_map);
         //getActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        locateButton = (Button)findViewById(R.id.locate_button);
+        
         wifi = new WifiScan(this);
         room = IndoorPositioning.room;
         
@@ -61,6 +66,8 @@ public class DisplayMap extends Activity {
     
     public void locate(View view) {
     	wifi.getWifiData(new LocateListener());
+    	
+    	locateButton.setText(R.string.loading);
     }
     
     public void reset(View view) {
@@ -80,12 +87,15 @@ public class DisplayMap extends Activity {
 			System.out.println("Scan results");
 			room.createPoint(scanResults, this.point);
 			
+			map.clearTempPoints();
 			map.reDraw();
 		}
     }
     
     class LocateListener implements WifiScanListener {
 		public void onWifiScanResult(List<ScanResult> scanResults) {
+			locateButton.setText(R.string.button_locate);
+			
 			if (activePoint != null) {
 				activePoint.setActive(false);
 			}
