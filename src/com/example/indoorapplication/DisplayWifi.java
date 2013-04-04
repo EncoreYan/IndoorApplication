@@ -1,11 +1,11 @@
 package com.example.indoorapplication;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.wifi.WifiManager;
+import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
@@ -13,62 +13,98 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.indoorapplication.wifi.AccessPoints;
+import com.example.indoorapplication.data.Point;
+import com.example.indoorapplication.data.Room;
+import com.example.indoorapplication.wifi.WifiScan;
+import com.example.indoorapplication.wifi.WifiScanListener;
 
-public class DisplayWifi extends Activity {
+public class DisplayWifi extends Activity implements WifiScanListener {
 	private TextView wifiInfo;
-	WifiManager wifi;
-	AccessPoints accessPoints;
-	WifiScanResultReceiver receiver;
+	private TextView status;
+	
+	private WifiScan wifi;
+	private Room room;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_wifi);
         
-        
+        wifi = new WifiScan(this);
         wifiInfo = (TextView) findViewById(R.id.wifi_info);
-        
-		accessPoints = new AccessPoints();
+        status = (TextView) findViewById(R.id.wifi_status);
+        room = IndoorPositioning.room;
 		
-		initWifiInfo();
+		refreshAccessPoints();
     }
     
     public void refreshAccessPoints(View view) {
-		wifi.startScan();
-	}
-
-    private void initWifiInfo() {
-    	wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    	refreshAccessPoints();
+    }
+    
+    public void refreshAccessPoints() {
+		wifi.getWifiData(this);
 		
-		receiver = new WifiScanResultReceiver();
-    	
-		registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-		wifi.startScan();
+		wifiInfo.setText(R.string.loading);
 	}
     
-    public void updateWifiData() {
-    	accessPoints.update(wifi.getScanResults());
+    public void setTrainingPoint(View view) {
+		wifi.getWifiData(new TrainListener());
     	
-    	wifiInfo.setText(accessPoints.toString());
+    	status.setText(R.string.loading);
     }
+    
+    public void locate(View view) {
+    	wifi.getWifiData(new LocateListener());
+    	
+    	status.setText(R.string.loading);
+    }
+    
+    public void onWifiScanResult(List<ScanResult> scanResults) {
+    	String result = "";
+    	
+		for (ScanResult scanResult : scanResults) {
+			result += scanResult.SSID + " (" + scanResult.BSSID + ") RSSI: " + scanResult.level;
+			
+			result += "\n";
+		}
+		
+		wifiInfo.setText(result);
+	}
 
-    class WifiScanResultReceiver extends BroadcastReceiver {
-    	@Override
-    	public void onReceive(Context context, Intent intent) {
-    		updateWifiData();
-    	}
+    class LocateListener implements WifiScanListener {
+		public void onWifiScanResult(List<ScanResult> scanResults) {
+			String data = "";
+			
+			Iterator<Map.Entry<Double, Point>> it = room.orderByResults(scanResults).entrySet().iterator();
+			
+			while (it.hasNext()) {
+				Map.Entry<Double, Point> entry = it.next();
+				double level = Math.round(entry.getKey() * 100) / 100.0; 
+				data += entry.getValue() + ": " + level + "\n";
+			}
+			
+			status.setText(data);
+		}
+    }
+    
+    class TrainListener implements WifiScanListener {
+		public void onWifiScanResult(List<ScanResult> scanResults) {
+			Point point = room.createPoint(scanResults);
+			
+			status.setText("Point saved: " + point);
+		}
     }
     
     @Override
 	protected void onPause() {
-        unregisterReceiver(receiver);
+    	wifi.unregisterReceiver();
         super.onPause();
     }
 
 	@Override
     protected void onResume() {
-        registerReceiver(receiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+		wifi.registerReceiver();
         super.onResume();
     }
     
