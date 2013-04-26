@@ -49,6 +49,12 @@ public class Room {
 		return data;
 	}
 	
+	public void clearActivePoints() {
+		for (Point point : points) {
+			point.setActive(false);
+		}
+	}
+	
 	public void reset() {
 		points.clear();
 	}
@@ -59,6 +65,17 @@ public class Room {
 		for (Point point : points) {
 			double distance = point.getDistance(scanResults);
 			sortedPoints.put(distance, point);
+		}
+		
+		return sortedPoints;
+	}
+	
+	public SortedMap<Double, Point> orderByProbability(List<ScanResult> scanResults, double sigma) {
+		SortedMap<Double, Point> sortedPoints = new TreeMap<Double, Point>();
+		
+		for (Point point : points) {
+			double p = point.getProbability(scanResults, sigma);
+			sortedPoints.put(-p, point);
 		}
 		
 		return sortedPoints;

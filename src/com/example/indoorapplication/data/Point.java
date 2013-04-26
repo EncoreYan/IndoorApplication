@@ -45,13 +45,28 @@ public class Point {
 			}
 		}
 		
-		if (count == 0) {
-			distance = Double.MAX_VALUE;
-		} else {
-			distance /= count;
+//		if (count == 0) {
+//			distance = Double.MAX_VALUE;
+//		} else {
+//			distance /= count;
+//		}
+		
+		return Math.sqrt(distance);
+	}
+	
+	public double getProbability(List<ScanResult> scanResults, double sigma) {
+		double p = 1;
+		double sigma2 = Math.pow(sigma, 2);
+		
+		for (ScanResult scanResult : scanResults) {
+			Integer level = accessPoints.get(scanResult.BSSID);
+			
+			if (level != null) {
+				p *= Math.exp(-Math.pow(level - scanResult.level, 2) / sigma2);
+			}
 		}
 		
-		return distance;
+		return p;
 	}
 	
 	public void setActive(boolean active) {
